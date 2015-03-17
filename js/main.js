@@ -62,13 +62,14 @@ Game.prototype = {
 		this.headX = null;
 		this.headY = null;
 		this.direction = 'right';
-		this.speed = 100;
 
 		this.createSnake();
 		this.createApple();
 		this.appleCount = 0;
 		this.writeAppleCount();
-		this.fps = 10;
+		this.speed = 100;
+		this.stopped = false;
+		this.requestId = 0;
 
 		function startTick(){
 			this.timeBefore = Date.now();
@@ -76,23 +77,26 @@ Game.prototype = {
 		}
 
 		function tick() {
-			this.fpsInterval = 1000/self.fps;
 
-			requestAnimationFrame(tick);
+			// todo try both cancelAnimationFrame and if
+			if (!self.stopped){
+				self.requestId = requestAnimationFrame(tick);
+			}
+
 
 			this.now = Date.now();
 			this.elapsed = this.now - this.timeBefore;
 
-			if (this.elapsed > this.fpsInterval) {
+			if (this.elapsed > self.speed) {
 
-				this.timeBefore = this.now - (this.elapsed % this.fpsInterval);
+				this.timeBefore = this.now - (this.elapsed % self.speed);
 
 				self.checkKeys();
 				self.actions();
 				self.drawObjects();
 			}
 		}
-		startTick(this.fps);
+		startTick();
 
 	},
 
@@ -154,13 +158,7 @@ Game.prototype = {
 	},
 
 	speedUp : function () {
-		// todo remove
-		this.fps += this.fps*0.05;
-		this.setNewInterval();
-	},
-
-	setNewInterval : function () {
-		this.fpsInterval = 1000/this.fps;
+		this.speed -= this.speed*0.05;
 	},
 
 	checkKeys : function () {
@@ -269,7 +267,10 @@ Game.prototype = {
 	},
 
 	endGame : function (selfCollided, wallCollided) {
-		this.fps = null;
+
+		cancelAnimationFrame(this.requestId);
+
+		this.stopped = true;
 
 		if (selfCollided) {
 			this.writeLoseMessage(this.hitSelfMessage);
