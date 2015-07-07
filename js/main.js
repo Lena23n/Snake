@@ -12,7 +12,6 @@ function Game(id) {
 	this.popUpWrap = null;
 	this.appleCount = null;
 	this.appleCountWrap = document.getElementById('apple-count');
-
 	this.fieldSize = {
 		w : 35,
 		h : 30
@@ -79,9 +78,7 @@ Game.prototype = {
 		function tick() {
 
 			// todo try both cancelAnimationFrame and if
-			if (!self.stopped){
 				self.requestId = requestAnimationFrame(tick);
-			}
 
 
 			this.now = Date.now();
@@ -118,8 +115,8 @@ Game.prototype = {
 
 	createApple: function () {
 		this.apple = {
-			x: Math.round(Math.random()*(this.fieldSize.w-1)),
-			y: Math.round(Math.random()*(this.fieldSize.h-1))
+			x: Math.floor(Math.random()*(this.fieldSize.w)),
+			y: Math.floor(Math.random()*(this.fieldSize.h))
 			// todo wtf?
 		};
 	},
@@ -270,7 +267,6 @@ Game.prototype = {
 
 		cancelAnimationFrame(this.requestId);
 
-		this.stopped = true;
 
 		if (selfCollided) {
 			this.writeLoseMessage(this.hitSelfMessage);
